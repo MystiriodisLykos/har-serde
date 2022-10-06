@@ -12,8 +12,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "pyserde",
+    "pyserde"
 ]
-license = "MIT"
+license = { file = "LICENSE" }
 readme = "README.md"
-requires_python = ">=3.8"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/MystiriodisLykos/har-serde"
