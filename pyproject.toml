@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harf-serde"
+version = "1.2a1"
+description = "A library of classes for HAR data using pyserde."
+authors = [{ name = "Brendan", email = "brendandeleeuw@gmail.com" }]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "pyserde",
+]
+license = "MIT"
+readme = "README.md"
+requires_python = ">=3.8"
