@@ -2,7 +2,7 @@ from dataclasses import dataclass, replace
 from functools import partial
 from typing import TypeVar, Generic, Callable, List, Union, Any, Optional, Type
 
-from serde import serde, SerdeSkip, field
+from serde import serde, SerdeSkip, field, to_dict
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -20,6 +20,7 @@ Func = Callable[[A], B]
 skip_if_none = lambda: field(default=None, skip_if=lambda v: v is None)
 
 
+@serde
 class MISSING:
     """Sentinel value to use where a missing attribute is syntactically different from being set to None.
 
@@ -30,11 +31,11 @@ class MISSING:
     pass
 
 
-def skip_if_missing() -> Type[MISSING]:
-    return field(default=MISSING, skip_if=lambda v: v is MISSING)
+def skip_if_missing() -> MISSING:
+    return field(default=MISSING(), serializer=to_dict)
 
 
-Missable = Union[Type[MISSING], None, A]
+Missable = Union[MISSING, None, A]
 
 
 @serde
