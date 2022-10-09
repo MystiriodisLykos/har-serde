@@ -75,12 +75,17 @@ class CacheF(Generic[A, B]):
     comment: Optional[str] = skip_if_none()
 
     def nmap(self: "CacheF[A, B]", f: Func[A, W], g: Func[B, X]) -> "CacheF[W, X]":
-        beforeRequest = self.beforeRequest
-        afterRequest = self.afterRequest
-        return CacheF(
-            f(beforeRequest) if beforeRequest not in {MISSING, None} else beforeRequest,
-            g(afterRequest) if afterRequest not in {MISSING, None} else afterRequest,
-        )
+        if self.beforeRequest is not None and not isinstance(self.beforeRequest, MISSING):
+            beforeRequest: Missable[W] = f(self.beforeRequest)
+        else:
+            beforeRequest = self.beforeRequest
+
+        if self.afterRequest is not None and not isinstance(self.afterRequest, MISSING):
+            afterRequest: Missable[X] = g(self.afterRequest)
+        else:
+            afterRequest = self.afterRequest
+
+        return CacheF(beforeRequest, afterRequest)
 
 
 @serde
