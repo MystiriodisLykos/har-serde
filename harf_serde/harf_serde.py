@@ -396,7 +396,10 @@ def harf_cata(a: Callable[[HarF[A]], A], h: FHar) -> A:
         subs = h.nmap(*fs)
     else:
         subs = h
-    return a(subs)
+    try:
+        return a(subs)
+    except Exception as e:
+        raise RuntimeError(f"Error applying algebra to type: {type(subs)}") from e
 
 
 def harf(
