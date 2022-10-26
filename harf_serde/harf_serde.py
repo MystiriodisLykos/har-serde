@@ -476,6 +476,7 @@ PostDataText = PostDataTextF
 PostDataParam = PostDataParamF[Param]
 PostData = Union[PostDataText, PostDataParam]
 QueryString = QueryStringF
+QueryParam = QueryString
 Request = RequestF[Cookie, Header, QueryString, PostData]
 Entry = EntryF[Request, Response, Cache, Timings]
 PageTimings = PageTimingsF
