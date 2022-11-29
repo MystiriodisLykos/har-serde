@@ -1,8 +1,7 @@
 from dataclasses import dataclass, replace
-from functools import partial
-from typing import TypeVar, Generic, Callable, List, Union, Any, Optional, Type
+from typing import TypeVar, Generic, Callable, List, Union, Optional
 
-from serde import serde, SerdeSkip, field, to_dict
+from serde import serde, field, to_dict
 
 A = TypeVar("A")
 B = TypeVar("B")
@@ -75,7 +74,9 @@ class CacheF(Generic[A, B]):
     comment: Optional[str] = skip_if_none()
 
     def nmap(self: "CacheF[A, B]", f: Func[A, W], g: Func[B, X]) -> "CacheF[W, X]":
-        if self.beforeRequest is not None and not isinstance(self.beforeRequest, MISSING):
+        if self.beforeRequest is not None and not isinstance(
+            self.beforeRequest, MISSING
+        ):
             beforeRequest: Missable[W] = f(self.beforeRequest)
         else:
             beforeRequest = self.beforeRequest
@@ -385,103 +386,3 @@ HarF = Union[
 ]
 
 FHar = HarF["FHar"]  # type: ignore[misc]
-
-
-def harf_cata(a: Callable[[HarF[A]], A], h: FHar) -> A:
-    def inner_cata(e: HarF) -> A:
-        return harf_cata(a, e)
-
-    fs = [inner_cata] * len(getattr(h, "__parameters__", []))
-    if hasattr(h, "nmap"):
-        subs = h.nmap(*fs)
-    else:
-        subs = h
-    try:
-        return a(subs)
-    except Exception as e:
-        raise RuntimeError(f"Error applying algebra to type: {type(subs)}") from e
-
-
-def harf(
-    default: A,
-    timing: Callable[[TimingsF], A] = None,
-    before_after_request: Callable[[BeforeAfterRequestF], A] = None,
-    cache: Callable[[CacheF], A] = None,
-    content: Callable[[ContentF], A] = None,
-    response: Callable[[ResponseF[A, A, A]], A] = None,
-    param: Callable[[ParamF], A] = None,
-    post_data: Callable[[PostDataF[A]], A] = None,
-    querystring: Callable[[QueryStringF], A] = None,
-    header: Callable[[HeaderF], A] = None,
-    cookie: Callable[[CookieF], A] = None,
-    request: Callable[[RequestF[A, A, A, A]], A] = None,
-    entry: Callable[[EntryF[A, A, A, A]], A] = None,
-    page_timing: Callable[[PageTimingsF], A] = None,
-    page: Callable[[PageF[A]], A] = None,
-    browser: Callable[[BrowserF], A] = None,
-    creator: Callable[[CreatorF], A] = None,
-    log: Callable[[LogF[A, A, A, A]], A] = None,
-) -> Callable[[FHar], A]:
-    def alg(h: HarF[A]) -> A:
-        if isinstance(h, TimingsF):
-            return timing(h) if timing else default
-        if isinstance(h, BeforeAfterRequestF):
-            return before_after_request(h) if before_after_request else default
-        if isinstance(h, CacheF):
-            return cache(h) if cache else default
-        if isinstance(h, ContentF):
-            return content(h) if content else default
-        if isinstance(h, ResponseF):
-            return response(h) if response else default
-        if isinstance(h, ParamF):
-            return param(h) if param else default
-        if isinstance(h, PostDataTextF) or isinstance(h, PostDataParamF):
-            return post_data(h) if post_data else default
-        if isinstance(h, QueryStringF):
-            return querystring(h) if querystring else default
-        if isinstance(h, HeaderF):
-            return header(h) if header else default
-        if isinstance(h, CookieF):
-            return cookie(h) if cookie else default
-        if isinstance(h, RequestF):
-            return request(h) if request else default
-        if isinstance(h, EntryF):
-            return entry(h) if entry else default
-        if isinstance(h, PageTimingsF):
-            return page_timing(h) if page_timing else default
-        if isinstance(h, PageF):
-            return page(h) if page else default
-        if isinstance(h, BrowserF):
-            return browser(h) if browser else default
-        if isinstance(h, CreatorF):
-            return creator(h) if creator else default
-        if isinstance(h, LogF):
-            return log(h) if log else default
-        if isinstance(h, TopF):
-            return h.log
-        return default
-
-    return partial(harf_cata, alg)
-
-
-Timings = TimingsF
-BeforeAfterRequest = BeforeAfterRequestF
-Cache = CacheF[BeforeAfterRequest, BeforeAfterRequest]
-Content = ContentF
-Header = HeaderF
-Cookie = CookieF
-Response = ResponseF[Cookie, Header, Content]
-Param = ParamF
-PostDataText = PostDataTextF
-PostDataParam = PostDataParamF[Param]
-PostData = Union[PostDataText, PostDataParam]
-QueryString = QueryStringF
-QueryParam = QueryString
-Request = RequestF[Cookie, Header, QueryString, PostData]
-Entry = EntryF[Request, Response, Cache, Timings]
-PageTimings = PageTimingsF
-Page = PageF[PageTimings]
-Browser = BrowserF
-Creator = CreatorF
-Log = LogF[Creator, Entry, Browser, Page]
-Har = TopF[Log]

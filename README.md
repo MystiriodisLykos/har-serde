@@ -1,11 +1,12 @@
 A library of classes for [HAR](https://github.com/ahmadnassri/har-spec/blob/master/versions/1.2.md) data using [pyserde](https://pypi.org/project/pyserde/).
 
-The library is focused on providing a [F-Algebra](#f-algebra-classes) for `HAR` data and associated [morphisms](#morphisms) but also contains [canonical types](#CanonicalBasic-types) for basic usages.
+The library is focused on providing a complete [F-Algebra](#f-algebra-classes) for `HAR` data and associated [morphisms](#morphisms) but also contains [canonical types](#CanonicalBasic-types) for basic usages.
 
 ## F-Algebra classes
-There is one generic-ish class for every `HAR` type and are affixed with `F`.
-All nested `HAR` types have been replaced with type parameters.
-Some types have no nested `HAR` types and so have no generic parameters but are included for completeness.
+There is one generic-ish class for every `HAR` type and are prefixed with `F`.
+All nested `HAR` data has been replaced with type parameters.
+Some types have no nested `HAR` data and so have no generic parameters but are included for completeness.
+All types can be imported from `harf_serde.harf` or directly from `harf_serde`.
 
 There is one edge case for post data.
 Since some of the parameters defined in the spec are mutually exclusive there are two classes for post data.
@@ -41,6 +42,7 @@ class ResponseF(Generic[A, B, C]):
 ## Morphisms
 Currently there are just 2 helper morphisms.
 `harf_cata` is a general catamorphsim, and `harf` which helps you build an algebra for `harf_cata` by taking explicit functions for each `HAR` type.
+All functions can be imported from `harf_serde.morphism` or directly from `harf_serde`.
 
 For example, if you wanted to count the number of times the string `"key"` is in headers you could do the following
 ```python
@@ -56,4 +58,5 @@ harf(
 
 ## Canonical/Basic types
 For simple usages there are also type aliases for the canonical `HAR` structure.
-I.E. `Response = ResponseF[Cookie, Header, Content]`
+I.E. `Response = ResponseF[Cookie, Header, Content]`.
+All types can be imported from `harf_serde.har` or directly from `harf_serde`.
