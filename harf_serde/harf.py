@@ -86,7 +86,11 @@ class CacheF(Generic[A, B]):
         else:
             afterRequest = self.afterRequest
 
-        return CacheF(beforeRequest, afterRequest)
+        return replace(
+            self,
+            beforeRequest=beforeRequest,  # type: ignore[arg-type]
+            afterRequest=afterRequest,  # type: ignore[arg-type]
+        )
 
 
 @serde

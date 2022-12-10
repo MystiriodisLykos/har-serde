@@ -1,4 +1,5 @@
 import json
+from string import printable
 
 from hypothesis import given, strategies as st, note
 from serde.json import to_json
@@ -7,9 +8,11 @@ from serde import to_dict
 
 from harf_serde import Cache, BeforeAfterRequest, MISSING
 
+text = st.text(printable)
+comment = text | st.none()
 missing = st.just(MISSING())
 before_after = st.from_type(BeforeAfterRequest) | st.none() | missing
-cache = st.builds(Cache, before_after, before_after)
+cache = st.builds(Cache, before_after, before_after, comment)
 
 
 @given(cache)
@@ -21,6 +24,9 @@ def test_cache_is_serializable(cache):
 def test_cache_nmap_doesnt_explode(cache):
     cache.nmap(id, id)
 
+@given(cache)
+def test_cache_nmap_preserves_comments(cache):
+    assert cache.comment is cache.nmap(id, id).comment
 
 def test_missing_value_not_in_serialization():
     assert "MISSING" not in to_json(Cache())
