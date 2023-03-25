@@ -19,6 +19,7 @@ Func = Callable[[A], B]
 skip_if_none = lambda: field(default=None, skip_if=lambda v: v is None)
 
 
+@dataclass(frozen=True)  # Needs to be frozen for 3.11+ compatability see bpo-44674 in release notes.
 @serde
 class MISSING:
     """Sentinel value to use where a missing attribute is syntactically different from being set to None.
